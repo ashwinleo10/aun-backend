@@ -1,8 +1,8 @@
-
 package com.example.demo.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,6 +24,9 @@ import com.example.demo.filter.AuthenticationFilter;
 public class SecurityConfig {
 
     private final AuthenticationFilter authenticationFilter;
+
+    @Value("${CORS_ORIGIN:http://localhost:5173}")
+    private String corsOrigin;
 
     public SecurityConfig(AuthenticationFilter authenticationFilter) {
         this.authenticationFilter = authenticationFilter;
@@ -105,7 +108,7 @@ public class SecurityConfig {
                 new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-            List.of("http://localhost:5173"));
+            List.of(corsOrigin));
 
         configuration.setAllowedMethods(
             List.of(
