@@ -1,11 +1,12 @@
-
 package com.example.demo.controller;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,14 +18,16 @@ import com.example.demo.dto.LoginRequest;
 import com.example.demo.entity.User;
 import com.example.demo.service.AuthService;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @CrossOrigin(
-    origins = "http://localhost:5173",
-    allowCredentials = "true"
-)
+	    origins = {
+	        "http://localhost:5173",
+	        "https://aun-frontend.vercel.app"
+	    },
+	    allowCredentials = "true"
+	)
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -41,6 +44,7 @@ public class AuthController {
             HttpServletResponse response) {
 
         try {
+
             User user = authService.authenticate(
                 loginRequest.getUsername(),
                 loginRequest.getPassword()
@@ -48,18 +52,36 @@ public class AuthController {
 
             String token = authService.generateToken(user);
 
-            Cookie cookie = new Cookie("authToken", token);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(false);
-            cookie.setPath("/");
-            cookie.setMaxAge(3600);
+            ResponseCookie cookie = ResponseCookie
+                .from("authToken", token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(3600)
+                .sameSite("None")
+                .build();
 
-            response.addCookie(cookie);
+            response.setHeader(
+                HttpHeaders.SET_COOKIE,
+                cookie.toString()
+            );
 
             Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("message", "Login successful");
-            responseBody.put("role", user.getRole().name());
-            responseBody.put("username", user.getUsername());
+
+            responseBody.put(
+                "message",
+                "Login successful"
+            );
+
+            responseBody.put(
+                "role",
+                user.getRole().name()
+            );
+
+            responseBody.put(
+                "username",
+                user.getUsername()
+            );
 
             return ResponseEntity.ok(responseBody);
 
@@ -67,26 +89,38 @@ public class AuthController {
 
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", e.getMessage()));
+                .body(
+                    Map.of(
+                        "error",
+                        e.getMessage()
+                    )
+                );
         }
     }
 
-    // Logout customer by clearing the authentication cookie
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
             HttpServletResponse response) {
 
-        Cookie cookie = new Cookie("authToken", null);
+        ResponseCookie cookie = ResponseCookie
+            .from("authToken", "")
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .maxAge(0)
+            .sameSite("None")
+            .build();
 
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-
-        response.addCookie(cookie);
+        response.setHeader(
+            HttpHeaders.SET_COOKIE,
+            cookie.toString()
+        );
 
         return ResponseEntity.ok(
-            Map.of("message", "Logout successful")
+            Map.of(
+                "message",
+                "Logout successful"
+            )
         );
     }
 }
