@@ -33,37 +33,15 @@ public class User {
     private Role role;
 
     @Column(nullable = false)
-    private Boolean active = true;
+    private boolean active = true;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt =
-            LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt =
-            LocalDateTime.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     public User() {
-    }
-
-    public User(
-            Integer userId,
-            String username,
-            String email,
-            String password,
-            Role role,
-            boolean active,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt) {
-
-        this.userId = userId;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.active = active;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     public Integer getUserId() {
@@ -106,11 +84,11 @@ public class User {
         this.role = role;
     }
 
-    public Boolean isActive() {
+    public boolean isActive() {
         return active;
     }
 
-    public void setActive(Boolean active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 
@@ -118,8 +96,7 @@ public class User {
         return createdAt;
     }
 
-    public void setCreatedAt(
-            LocalDateTime createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -127,8 +104,7 @@ public class User {
         return updatedAt;
     }
 
-    public void setUpdatedAt(
-            LocalDateTime updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 }
